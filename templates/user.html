@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<ul>
+  {% if 'username' not in session %}
+  <li><a href="/register">Register</a></li>
+  <li><a href="/login">Login</a></li>
+  {% endif %}
+
+  {% if 'username' in session %}
+  <h2 class="display-5">{{user.first_name}} {{user.last_name}}</h2>
+  <p>Email: {{user.email}}</p>
+  <p>Username: {{user.username}}</p>
+
+
+  <br>
+
+  <h3 class="display-6">Notes:</h3>
+
+  <ul>
+    {% for note in user.notes %}
+    <li><span><a href="/notes/{{note.id}}/update"><i class="bi bi-pencil-square"></i></a></span>
+      <div><h5>{{note.title}}</h5></div>
+      <div>{{note.content}}</div>
+      <form>
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-primary" formmethod="POST" formaction="/notes/{{note.id}}/delete">DELETE
+          NOTE</button>
+      </form>
+
+    </li>
+
+    {% endfor %}
+
+  </ul>
+  <br><br>
+  <a href='/users/{{user.username}}/notes/add'>ADD NEW NOTE</a>
+
+  <br><br><br>
+
+  <form>
+    {{ form.hidden_tag() }}
+    <button type="submit" class="btn btn-primary" formmethod="POST" formaction="/logout">LOGOUT</button><br><br>
+    <button type="submit" class="btn btn-primary" formmethod="POST" formaction="/users/{{user.username}}/delete">DELETE
+      USER</button>
+  </form>
+  {% endif %}
+</ul>
+
+{% endblock %}

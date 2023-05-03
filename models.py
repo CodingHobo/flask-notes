@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from app import app
 
 db = SQLAlchemy()
 
@@ -42,4 +41,66 @@ class User(db.Model):
     last_name = db.Column(
         db.String(30),
         nullable = False
+        )
+
+    notes = db.relationship('Note', backref='writer')
+
+
+    # start_register
+    @classmethod
+    def register(cls, username, password, email, first_name, last_name):
+        """Register user w/hashed password & return user."""
+
+        hashed = bcrypt.generate_password_hash(password).decode('utf8')
+
+        # return instance of user w/username and hashed pwd
+        return cls(username=username,
+                   password=hashed,
+                   email=email,
+                   first_name = first_name,
+                   last_name = last_name)
+    # end_register
+
+    # start_authenticate
+    @classmethod
+    def authenticate(cls, username, pwd):
+        """Validate that user exists & password is correct.
+
+        Return user if valid; else return False.
+        """
+
+        u = cls.query.filter_by(username=username).one_or_none()
+
+        if u and bcrypt.check_password_hash(u.password, pwd):
+            # return user instance
+            return u
+        else:
+            return False
+    # end_authenticate
+
+
+
+class Note(db.Model):
+    "Notes"
+
+    __tablename__ = 'notes'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+        )
+
+    title = db.Column(
+        db.String(100),
+        nullable= False
+        )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+        )
+
+    owner_username = db.Column(
+        db.ForeignKey('users.username')
         )
